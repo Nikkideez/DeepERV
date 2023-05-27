@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/Hyuto/yolov5-tfjs#readme",
   "dependencies": {
+    "@react-google-maps/api": "^2.18.1",
     "@tensorflow/tfjs": "^4.1.0",
     "normalize.css": "^8.0.1",
     "react": "^18.2.0",

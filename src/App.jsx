@@ -5,6 +5,7 @@ import Loader from "./components/loader";
 import ButtonHandler from "./components/btn-handler";
 import { detectImage, detectVideo } from "./utils/detect";
 import "./style/App.css";
+import Home from "./components/map-home";
 
 const App = () => {
   const [loading, setLoading] = useState({ loading: true, progress: 0 }); // loading state
@@ -20,8 +21,8 @@ const App = () => {
   const canvasRef = useRef(null);
 
   // model configs
-  const modelName = "yolov5n";
-  const classThreshold = 0.2;
+  const modelName = "best";
+  const classThreshold = 0.6;
 
   useEffect(() => {
     tf.ready().then(async () => {
@@ -50,8 +51,11 @@ const App = () => {
 
   return (
     <div className="App">
+      
       {loading.loading && <Loader>Loading model... {(loading.progress * 100).toFixed(2)}%</Loader>}
       <div className="header">
+        <Home></Home>
+        {/* <h1>Helloooo</h1> */}
         <h1>📷 YOLOv5 Live Detection App</h1>
         <p>
           YOLOv5 live detection application on browser powered by <code>tensorflow.js</code>

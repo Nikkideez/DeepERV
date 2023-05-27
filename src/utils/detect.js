@@ -85,9 +85,11 @@ export const detectVideo = (vidSource, model, classThreshold, canvasRef) => {
 
     await model.net.executeAsync(input).then((res) => {
       const [boxes, scores, classes] = res.slice(0, 3);
+      
       const boxes_data = boxes.dataSync();
       const scores_data = scores.dataSync();
       const classes_data = classes.dataSync();
+      // console.log(boxes_data, scores_data, classes_data)
       renderBoxes(canvasRef, classThreshold, boxes_data, scores_data, classes_data, [
         xRatio,
         yRatio,
