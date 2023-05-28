@@ -14,6 +14,7 @@ const App = () => {
     net: null,
     inputShape: [1, 0, 0, 3],
   }); // init model & input shape
+  const [isLocation, setIsLocation] = useState(false);
 
   // references
   const imageRef = useRef(null);
@@ -22,7 +23,7 @@ const App = () => {
   const canvasRef = useRef(null);
 
   // model configs
-  const modelName = "best";
+  const modelName = "yolov5s";
   const classThreshold = 0.6;
 
   useEffect(() => {
@@ -52,10 +53,10 @@ const App = () => {
 
   return (
     <div className="App">
-      
+
       {loading.loading && <Loader>Loading model... {(loading.progress * 100).toFixed(2)}%</Loader>}
       <div className="header">
-        <Map data={data}/>
+        <Map data={data} setIsLocation={setIsLocation} />
         {/* <h1>Helloooo</h1> */}
         <h1>📷 YOLOv5 Live Detection App</h1>
         <p>
@@ -64,9 +65,9 @@ const App = () => {
         <p>
           Serving : <code className="code">{modelName}</code>
         </p>
-        <p>
+        {/* <p>
           Current Class: {data}
-        </p>
+        </p> */}
       </div>
 
       <div className="content">
@@ -90,7 +91,12 @@ const App = () => {
         <canvas width={model.inputShape[1]} height={model.inputShape[2]} ref={canvasRef} />
       </div>
 
-      <ButtonHandler imageRef={imageRef} cameraRef={cameraRef} videoRef={videoRef} />
+      {!isLocation &&
+        <p>
+          Set a location to enable buttons
+        </p>
+      }
+      <ButtonHandler imageRef={imageRef} cameraRef={cameraRef} videoRef={videoRef} isDisabled={!isLocation} />
     </div>
   );
 };

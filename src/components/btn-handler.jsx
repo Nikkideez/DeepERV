@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Webcam } from "../utils/webcam";
 
-const ButtonHandler = ({ imageRef, cameraRef, videoRef }) => {
+const ButtonHandler = ({ imageRef, cameraRef, videoRef, isDisabled }) => {
   const [streaming, setStreaming] = useState(null); // streaming state
   const inputImageRef = useRef(null); // video input reference
   const inputVideoRef = useRef(null); // video input reference
@@ -52,6 +52,7 @@ const ButtonHandler = ({ imageRef, cameraRef, videoRef }) => {
           else if (streaming === "image") closeImage();
           else alert(`Can't handle more than 1 stream\nCurrently streaming : ${streaming}`); // if streaming video or webcam
         }}
+        disabled={isDisabled}
       >
         {streaming === "image" ? "Close" : "Open"} Image
       </button>
@@ -79,6 +80,7 @@ const ButtonHandler = ({ imageRef, cameraRef, videoRef }) => {
           else if (streaming === "video") closeVideo();
           else alert(`Can't handle more than 1 stream\nCurrently streaming : ${streaming}`); // if streaming webcam
         }}
+        disabled={isDisabled}
       >
         {streaming === "video" ? "Close" : "Open"} Video
       </button>
@@ -101,6 +103,7 @@ const ButtonHandler = ({ imageRef, cameraRef, videoRef }) => {
             setStreaming(null);
           } else alert(`Can't handle more than 1 stream\nCurrently streaming : ${streaming}`); // if streaming video
         }}
+        disabled={isDisabled}
       >
         {streaming === "camera" ? "Close" : "Open"} Webcam
       </button>

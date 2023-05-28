@@ -15,7 +15,7 @@ export default function Home(props){
 
     return (
         <div>
-            <Map data={props.data}/>
+            <Map data={props.data} setIsLocation={props.setIsLocation}/>
         </div>
     )
 
