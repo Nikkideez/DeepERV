@@ -15,7 +15,8 @@ export const renderBoxes = (
   boxes_data,
   scores_data,
   classes_data,
-  ratios
+  ratios,
+  setData
 ) => {
   const ctx = canvasRef.getContext("2d");
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
@@ -33,16 +34,18 @@ export const renderBoxes = (
   for (let i = 0; i < scores_data.length; ++i) {
     // filter based on class threshold
     if (scores_data[i] > classThreshold) {
-      console.log(scores_data)
-      console.log(i)
-      console.log(scores_data[i])
-      console.log(classes_data[i])
+      // console.log(scores_data)
+      // console.log(i)
+      // console.log(scores_data[i])
+      // console.log(classes_data)
+      // console.log(classes_data[i])
       const klass = labels[classes_data[i]];
+      setData(classes_data[i])
       const color = colors.get(classes_data[i]);
       const score = (scores_data[i] * 100).toFixed(1);
 
       let [x1, y1, x2, y2] = boxes_data.slice(i * 4, (i + 1) * 4);
-      console.log(boxes_data.slice(i * 4, (i + 1) * 4))
+      // console.log(boxes_data.slice(i * 4, (i + 1) * 4))
       x1 *= canvasRef.width * ratios[0];
       x2 *= canvasRef.width * ratios[0];
       y1 *= canvasRef.height * ratios[1];

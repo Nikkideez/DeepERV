@@ -2,3 +2,12 @@
     width: 100%;
     height: 30vh;
 }
+
+.combobox-input {
+    width: 96%;
+    padding: 0.5rem;
+}
+
+.places {
+    padding: 15px 0;
+}

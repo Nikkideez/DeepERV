@@ -5,10 +5,11 @@ import Loader from "./components/loader";
 import ButtonHandler from "./components/btn-handler";
 import { detectImage, detectVideo } from "./utils/detect";
 import "./style/App.css";
-import Home from "./components/map-home";
+import Map from "./components/map-home";
 
 const App = () => {
   const [loading, setLoading] = useState({ loading: true, progress: 0 }); // loading state
+  const [data, setData] = useState(); // Holds detection data
   const [model, setModel] = useState({
     net: null,
     inputShape: [1, 0, 0, 3],
@@ -54,7 +55,7 @@ const App = () => {
       
       {loading.loading && <Loader>Loading model... {(loading.progress * 100).toFixed(2)}%</Loader>}
       <div className="header">
-        <Home></Home>
+        <Map data={data}/>
         {/* <h1>Helloooo</h1> */}
         <h1>📷 YOLOv5 Live Detection App</h1>
         <p>
@@ -62,6 +63,9 @@ const App = () => {
         </p>
         <p>
           Serving : <code className="code">{modelName}</code>
+        </p>
+        <p>
+          Current Class: {data}
         </p>
       </div>
 
@@ -75,13 +79,13 @@ const App = () => {
           autoPlay
           muted
           ref={cameraRef}
-          onPlay={() => detectVideo(cameraRef.current, model, classThreshold, canvasRef.current)}
+          onPlay={() => detectVideo(cameraRef.current, model, classThreshold, canvasRef.current, setData)}
         />
         <video
           autoPlay
           muted
           ref={videoRef}
-          onPlay={() => detectVideo(videoRef.current, model, classThreshold, canvasRef.current)}
+          onPlay={() => detectVideo(videoRef.current, model, classThreshold, canvasRef.current, setData)}
         />
         <canvas width={model.inputShape[1]} height={model.inputShape[2]} ref={canvasRef} />
       </div>
