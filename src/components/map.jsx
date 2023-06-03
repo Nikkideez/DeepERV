@@ -41,7 +41,7 @@ export default function Map(props) {
 	const [ervs, setERVS] = useState([])
 	const mapRef = useRef();
 
-	const center = useMemo(() => ({ lat: -33.8840838, lng: 151.2012416 }), []);
+	const center = useMemo(() => ({ lat: -33.88414324710883, lng: 151.2012448983706 }), []);
 
 	const options = useMemo(() => ({
 		mapId: "956b2027cda0bb4a",
@@ -116,15 +116,45 @@ export default function Map(props) {
 
 	useEffect(() => {
 		{
-			console.log(ervs)
+			// console.log("ervs ", ervs)
 			const check = ervs.some(item => item.data === props.data)
-			console.log("check 1 ", check);
-			console.log("props.data: ", props.data);
-			console.log("modulo: ", props.data % 2);
-			console.log("check: ", !check)
+			// console.log("location ", location)
+			// console.log(ervs[0]["location"] )
+			// const checkLocation = ervs.some(item => (Math.abs(item.location.lat - location.lat)) < 0.01)
+			const checklist = { 0: false, 2: false, 4: false };
+			let count = 0
+			let checkLocation = false;
+			for (let i = 0; i < ervs.length; i++) {
+				// console.log("iteration: ", i)
+				// console.log(Math.abs(ervs[i].location.lat - location.lat))
+				// // console.log("ervs: ", ervs[i])
+				// console.log("count: ", count)
+				// console.log("checklist: ", checklist)
+				if (count === 3) {
+					// console.log("Fulllllllllllllllllllll")
+					checkLocation = true;
+					break;
+				}
+				else if ((Math.abs(ervs[i].location.lat - location.lat) < 0.001) && !checklist[ervs[i].data]) {
+					if(ervs[i].data === props.data) {
+						// console.log("Already existing")
+						checkLocation = true;
+						break;
+					}
+					checklist[ervs[i].data] = true;
+					count++;
+				}
+			}
 
-			if (!check && props.data !== undefined && (props.data % 2) === 0) {
-				console.log("check 2 ", check);
+
+			// console.log("check 1 ", check);
+			// console.log("props.data: ", props.data);
+			// console.log("modulo: ", props.data % 2);
+			// console.log("check: ", !check)
+			console.log("checkLocation: ", checkLocation)
+
+			if (!checkLocation && props.data !== undefined && (props.data % 2) === 0) {
+				// console.log("check 2 ", check);
 				// setCount(count + 1);
 				handleERVArray(location, props.data)
 			}
@@ -132,7 +162,7 @@ export default function Map(props) {
 	}, [props.data])
 
 	useEffect(() => {
-		if(location) {
+		if (location) {
 			props.setIsLocation(true);
 		}
 	}, [location])
@@ -175,12 +205,12 @@ export default function Map(props) {
 	// console.log(ervs)
 
 	return (
-		<div>
+		<div className="map-div">
 			<div>
-				<h1>
+				<h3>
 					Search for addresses
-				</h1>
-				<p>Current Class: {labels[props.data]} </p>
+				</h3>
+				{/* <p>Current Class: {labels[props.data]} </p> */}
 				<div className="places">
 					<Places
 						setLocation={(position) => {
@@ -199,7 +229,7 @@ export default function Map(props) {
 			>
 				{location && (
 					<>
-						{console.log("getting called")}
+						{/* {console.log("getting called")} */}
 						<Marker
 							position={location}
 							// icon={{
@@ -221,7 +251,7 @@ export default function Map(props) {
 								fillOpacity: 0.20,
 							}}
 						/> */}
-						<MarkerClusterer options={{gridSize: 5 }}>
+						<MarkerClusterer options={{ gridSize: 5 }}>
 							{(clusterer) =>
 								ervs.map((erv) => (
 									<Marker
@@ -245,9 +275,9 @@ export default function Map(props) {
 				/> */}
 			</GoogleMap>
 			<button onClick={() => {
-					setLocation(center);
-					// mapRef.current.panTo(location);
-				}}
+				setLocation(center);
+				// mapRef.current.panTo(location);
+			}}
 				className="location-button"
 			>
 				Set current location

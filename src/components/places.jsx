@@ -26,11 +26,19 @@ export default function Places({ setLocation }) {
     const handleSelect = async (val) => {
         setValue(val, false);
         clearSuggestions();
-        
+    
         const results = await getGeocode({address: val});
         const {lat, lng} = await getLatLng(results[0]);
-        console.log({ lat, lng });
-        setLocation({ lat, lng });
+    
+        // get the snapped coordinates
+        const API_KEY = import.meta.env.VITE_PUBLIC_GOOGLE_MAPS_API_KEY// your API Key
+        const response = await fetch(`https://roads.googleapis.com/v1/snapToRoads?path=${lat},${lng}&interpolate=true&key=${API_KEY}`);
+        const data = await response.json();
+        const {latitude: snappedLat, longitude: snappedLng} = data.snappedPoints[0].location;
+    
+        // console.log({ snappedLat, snappedLng });
+    
+        setLocation({ lat: snappedLat, lng: snappedLng });
     }
 
     return <Combobox onSelect={handleSelect}>

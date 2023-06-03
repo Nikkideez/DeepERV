@@ -56,12 +56,12 @@ const App = () => {
 
       {loading.loading && <Loader>Loading model... {(loading.progress * 100).toFixed(2)}%</Loader>}
       <div className="header">
-        <Map data={data} setIsLocation={setIsLocation} />
-        {/* <h1>Helloooo</h1> */}
-        <h1>📷 YOLOv5 Live Detection App</h1>
+        <h1>📷 DeepERV</h1>
         <p>
-          YOLOv5 live detection application on browser powered by <code>tensorflow.js</code>
+          YOLOv5 live ERV detection application on browser powered by <code>DeepERV</code>
         </p>
+        <Map data={data} setIsLocation={setIsLocation}/>
+        {/* <h1>Helloooo</h1> */}
         <p>
           Serving : <code className="code">{modelName}</code>
         </p>
@@ -91,12 +91,12 @@ const App = () => {
         <canvas width={model.inputShape[1]} height={model.inputShape[2]} ref={canvasRef} />
       </div>
 
+      <ButtonHandler imageRef={imageRef} cameraRef={cameraRef} videoRef={videoRef} isDisabled={!isLocation} />
       {!isLocation &&
         <p>
-          Set a location to enable buttons
+          Set a location to enable inference buttons
         </p>
       }
-      <ButtonHandler imageRef={imageRef} cameraRef={cameraRef} videoRef={videoRef} isDisabled={!isLocation} />
     </div>
   );
 };

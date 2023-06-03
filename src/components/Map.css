@@ -3,6 +3,11 @@
     height: 30vh;
 }
 
+.map-div {
+    margin-top: 50px;
+    margin-bottom: 30px;
+}
+
 .combobox-input {
     width: 96%;
     padding: 0.5rem;
