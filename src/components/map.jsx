@@ -115,7 +115,9 @@ export default function Map(props) {
 	// const ervs = useMemo(() => handleERVArray(location, props.data), [count])
 
 	useEffect(() => {
-		{
+		if (props.data) {
+			// console.log("Maps useEFfect getting called")
+			// console.log(props.data)
 			// console.log("ervs ", ervs)
 			const check = ervs.some(item => item.data === props.data)
 			// console.log("location ", location)
@@ -136,7 +138,7 @@ export default function Map(props) {
 					break;
 				}
 				else if ((Math.abs(ervs[i].location.lat - location.lat) < 0.001) && !checklist[ervs[i].data]) {
-					if(ervs[i].data === props.data) {
+					if (ervs[i].data === props.data) {
 						// console.log("Already existing")
 						checkLocation = true;
 						break;
@@ -152,6 +154,7 @@ export default function Map(props) {
 			// console.log("modulo: ", props.data % 2);
 			// console.log("check: ", !check)
 			console.log("checkLocation: ", checkLocation)
+			console.log(props.data)
 
 			if (!checkLocation && props.data !== undefined && (props.data % 2) === 0) {
 				// console.log("check 2 ", check);
@@ -167,42 +170,8 @@ export default function Map(props) {
 		}
 	}, [location])
 
+	const handleClearMarker = () => setERVS([]);
 
-	// const svgMarker = {
-	// 	path: "m321-292 159-72 159 72 5-5-164-397-164 397 5 5ZM480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z",
-	// 	fillColor: "blue",
-	// 	fillOpacity: 0.6,
-	// 	strokeWeight: 0,
-	// 	rotation: 0,
-	// 	scale: 2,
-	// 	anchor: new google.maps.Point(0, 20),
-	// };
-
-	// When location changes, remove the old circle.
-	// 	useEffect(() => {
-	//     if (circleRef) {
-	//         circleRef.setMap(null);
-	//     }
-
-	//     const newCircle = new window.google.maps.Circle({
-	//         strokeColor: "#FF0000",
-	//         strokeOpacity: 0.8,
-	//         strokeWeight: 1,
-	//         fillColor: "#E07790",
-	//         fillOpacity: 0.20,
-	//         map: mapRef.current,
-	//         center: location,
-	//         radius: 100,
-	//     });
-
-	//     setCircleRef(newCircle);
-
-	//     return () => {
-	//         newCircle.setMap(null);
-	//     };
-	// }, [location]);
-
-	// console.log(ervs)
 
 	return (
 		<div className="map-div">
@@ -274,14 +243,19 @@ export default function Map(props) {
 					icon="../../yolov5-tfjs/icons8-location-32.png"
 				/> */}
 			</GoogleMap>
-			<button onClick={() => {
-				setLocation(center);
-				// mapRef.current.panTo(location);
-			}}
-				className="location-button"
-			>
-				Set current location
-			</button>
+			<div className="buttonContainer">
+				<button onClick={() => {
+					setLocation(center);
+					// mapRef.current.panTo(location);
+				}}
+					className="location-button"
+				>
+					Set current location
+				</button>
+				<button onClick={handleClearMarker}>
+					Clear Markers
+				</button>
+			</div>
 		</div>
 	);
 }

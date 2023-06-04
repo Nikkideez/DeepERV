@@ -1,0 +1,27 @@
+.chartContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-top: 50px;
+    margin-bottom: 30px;
+}
+
+/* .buttonsContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+} */
+
+.thresholdP {
+    display: inline;
+}
+
+.textContainer {
+    /* display: flex; */
+    width: 150px;
+}
+
+.directionText {
+    color: darkcyan;
+}

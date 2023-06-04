@@ -55,6 +55,10 @@
   height: 100%;
 }
 
+.outputContainer {
+  display: flex;
+}
+
 button {
   text-decoration: none;
   color: white;
@@ -78,3 +82,5 @@ button:disabled {
   border-color: #aaa; /* darker grey border */
   cursor: not-allowed; 
 }
+
+

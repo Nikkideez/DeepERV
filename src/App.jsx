@@ -6,10 +6,12 @@ import ButtonHandler from "./components/btn-handler";
 import { detectImage, detectVideo } from "./utils/detect";
 import "./style/App.css";
 import Map from "./components/map-home";
+import MyChart from './components/chart';
 
 const App = () => {
   const [loading, setLoading] = useState({ loading: true, progress: 0 }); // loading state
   const [data, setData] = useState(); // Holds detection data
+  const [centre, setCentre] = useState();
   const [model, setModel] = useState({
     net: null,
     inputShape: [1, 0, 0, 3],
@@ -51,6 +53,8 @@ const App = () => {
     });
   }, []);
 
+  // console.log(centre)
+
   return (
     <div className="App">
 
@@ -58,45 +62,49 @@ const App = () => {
       <div className="header">
         <h1>📷 DeepERV</h1>
         <p>
-          YOLOv5 live ERV detection application on browser powered by <code>DeepERV</code>
+          YOLOv5 live ERV detection application on browser
         </p>
-        <Map data={data} setIsLocation={setIsLocation}/>
-        {/* <h1>Helloooo</h1> */}
-        <p>
-          Serving : <code className="code">{modelName}</code>
-        </p>
-        {/* <p>
-          Current Class: {data}
-        </p> */}
       </div>
+      <div className="outputContainer">
+
+        <Map data={data} setIsLocation={setIsLocation} />
+        <MyChart centre={centre} setPredData={setData} />
+      </div>
+      <p>
+        Serving : <code className="code">{modelName}</code>
+      </p>
 
       <div className="content">
         <img
           src="#"
           ref={imageRef}
-          onLoad={() => detectImage(imageRef.current, model, classThreshold, canvasRef.current)}
+          onLoad={() => detectImage(imageRef.current, model, classThreshold, canvasRef.current, setCentre)}
         />
         <video
           autoPlay
           muted
           ref={cameraRef}
-          onPlay={() => detectVideo(cameraRef.current, model, classThreshold, canvasRef.current, setData)}
+          onPlay={() => detectVideo(cameraRef.current, model, classThreshold, canvasRef.current, setCentre)}
         />
         <video
           autoPlay
           muted
           ref={videoRef}
-          onPlay={() => detectVideo(videoRef.current, model, classThreshold, canvasRef.current, setData)}
+          onPlay={() => detectVideo(videoRef.current, model, classThreshold, canvasRef.current, setCentre)}
         />
         <canvas width={model.inputShape[1]} height={model.inputShape[2]} ref={canvasRef} />
       </div>
 
-      <ButtonHandler imageRef={imageRef} cameraRef={cameraRef} videoRef={videoRef} isDisabled={!isLocation} />
-      {!isLocation &&
-        <p>
+      {!isLocation ?
+        <p style={{ color: 'red'}}>
           Set a location to enable inference buttons
         </p>
+        :
+        <p style={{ color: 'magenta'}}>
+          Select input source
+        </p>
       }
+      <ButtonHandler imageRef={imageRef} cameraRef={cameraRef} videoRef={videoRef} isDisabled={!isLocation} />
     </div>
   );
 };

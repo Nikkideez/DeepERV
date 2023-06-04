@@ -1,5 +1,5 @@
 .map-container {
-    width: 100%;
+    width: 500px;
     height: 30vh;
 }
 
@@ -19,4 +19,8 @@
 
 .location-button {
     margin: 20px 0;
+}
+
+.buttonContainer {
+   text-align: center; 
 }
