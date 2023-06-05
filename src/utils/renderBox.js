@@ -46,9 +46,11 @@ export const renderBoxes = (
       const score = (scores_data[i] * 100).toFixed(1);
       
       let [x1, y1, x2, y2] = boxes_data.slice(i * 4, (i + 1) * 4);
-      let xc = (x2 + x1)/2;
-      let yc = (y2 + y1)/2;
-      setCentre({x: xc, y: yc, pred: classes_data[i]});
+      const w = x2 - x1;
+      const h = y2 - y1;
+      const xc = (x2 + x1)/2;
+      const yc = (y2 + y1)/2;
+      setCentre({x: xc, y: yc, w: w, h: h, pred: classes_data[i]});
       // console.log(boxes_data.slice(i * 4, (i + 1) * 4))
       x1 *= canvasRef.width * ratios[0];
       x2 *= canvasRef.width * ratios[0];
@@ -56,7 +58,7 @@ export const renderBoxes = (
       y2 *= canvasRef.height * ratios[1];
       const width = x2 - x1;
       const height = y2 - y1;
-
+      
       // draw box.
       ctx.fillStyle = Colors.hexToRgba(color, 0.2);
       ctx.fillRect(x1, y1, width, height);

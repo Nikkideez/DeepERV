@@ -11,7 +11,7 @@ import MyChart from './components/chart';
 const App = () => {
   const [loading, setLoading] = useState({ loading: true, progress: 0 }); // loading state
   const [data, setData] = useState(); // Holds detection data
-  const [centre, setCentre] = useState();
+  const [centre, setCentre] = useState(); // Holds data using centre points
   const [model, setModel] = useState({
     net: null,
     inputShape: [1, 0, 0, 3],
@@ -26,7 +26,7 @@ const App = () => {
 
   // model configs
   const modelName = "yolov5s";
-  const classThreshold = 0.6;
+  const classThreshold = 0.75;
 
   useEffect(() => {
     tf.ready().then(async () => {
@@ -69,6 +69,7 @@ const App = () => {
 
         <Map data={data} setIsLocation={setIsLocation} />
         <MyChart centre={centre} setPredData={setData} />
+        {/* <MyChart centre={centre} setPredData={setData} /> */}
       </div>
       <p>
         Serving : <code className="code">{modelName}</code>

@@ -115,7 +115,7 @@ export default function Map(props) {
 	// const ervs = useMemo(() => handleERVArray(location, props.data), [count])
 
 	useEffect(() => {
-		if (props.data) {
+		if (props.data || props.data === 0) {
 			// console.log("Maps useEFfect getting called")
 			// console.log(props.data)
 			// console.log("ervs ", ervs)

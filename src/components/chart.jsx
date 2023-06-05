@@ -36,11 +36,16 @@ export default function MyChart(props) {
   const [selectedValue, setSelectedNumber] = useState(1);
   const [direction, setDirection] = useState("");
   const [lineData, setLineData] = useState([])
+  const [keySwitch, setKeySwitch] = useState(1);
+  const keyMap = [["x", "y"], ["w", "h"]];
 
   // Calculate director from gradient and last point
-  const getDirection = (gradient, range, firstPoint, lastPoint) => {
+  const getDirection = (gradient, range, firstPoint, lastPoint, keySwitch) => {
+    if (!gradient)
+      return "??"
+
     let check;
-    if (gradient >= (-1 * range) && gradient <= range)
+    if (gradient && gradient >= (-1 * range) && gradient <= range)
       check = true;
     else
       check = false;
@@ -52,57 +57,41 @@ export default function MyChart(props) {
       else
         return "right"
     } else {
-      if (firstPoint.y > lastPoint.y)
-        return "down" // Change this to look at left and right bottom corners
+      if (!keySwitch && firstPoint.y > lastPoint.y)
+        return "down" 
+      else if (!keySwitch)
+        return "up"
+      else if (keySwitch && firstPoint.y > lastPoint.y)
+        return "up"
       else
-        return "up" // Change this to check if prevous ones are around the same x and y
+        return "down"
     }
   }
 
   useEffect(() => {
     // console.log("chart useEffect getting called")
+    // When new data comes, push to array
     if (props.centre) {
       setData(prevData => {
         return [...prevData, props.centre];
       })
     }
-    // console.log(data)
+
+    // If there are multiple of the same guess, pin to map
     if (data.length >= selectedValue && lastXPredsAreTheSame(data, selectedValue)) {
       // console.log(data[data.length - 2].pred, " equals ", data[data.length - 1].pred)
-
+      console.log(data[data.length - 1].pred)
       props.setPredData(data[data.length - 1].pred)
-      // console.log("setPredData called!!!!")
+      console.log("setPredData called!!!!")
     }
   }, [props.centre]);
 
-  // // Calculate the line of best fit only when data changes
-  // let lineOfBestFit;
-  // if (data.length >= 2) {
-  //   // Map your data to an array of arrays, where the inner arrays are pairs of numbers
-  //   const dataPairs = data.map(point => [point.x, point.y]);
-
-  //   // Calculate the line of best fit
-  //   const { m, b } = linearRegression(dataPairs);
-
-  //   console.log("Gradient is: ", m);
-
-  //   // Create a function for the line of best fit
-  //   lineOfBestFit = linearRegressionLine({ m, b });
-
-  //   const firstPoint = lineOfBestFit(data[0]["x"]);
-  //   const lastPoint = lineOfBestFit(data[data.length-1]["x"])
-
-  //   // Set direction of ERV
-  //   setDirection(getDirection(m, 1, 
-  //     {x: data[0]["x"], y: firstPoint},
-  //     {x: data[data.length-1]["x"], y: lastPoint},
-  //     ))
-  // }
-
-  useEffect(() => {
+  // Calculate the line of best fit only when data changes
+  // Use this to determine direction
+  function calculateLine() {
     if (data.length >= 2) {
       // Map your data to an array of arrays, where the inner arrays are pairs of numbers
-      const dataPairs = data.map(point => [point.x, point.y]);
+      const dataPairs = data.map(point => [point[keyMap[keySwitch][0]], point[keyMap[keySwitch][1]]]);
 
       // Calculate the line of best fit
       const { m, b } = linearRegression(dataPairs);
@@ -112,26 +101,49 @@ export default function MyChart(props) {
       // Create a function for the line of best fit
       const lineOfBestFit = linearRegressionLine({ m, b });
 
-      const firstPoint = lineOfBestFit(data[0]["x"]);
-      const lastPoint = lineOfBestFit(data[data.length - 1]["x"])
+      const firstPoint = lineOfBestFit(data[0][keyMap[keySwitch][0]]);
+      const lastPoint = lineOfBestFit(data[data.length - 1][keyMap[keySwitch][0]])
 
       // Set direction of ERV
       const newDirection = getDirection(m, 0.1,
-        { x: data[0]["x"], y: firstPoint },
-        { x: data[data.length - 1]["x"], y: lastPoint },
+        { x: data[0][keyMap[keySwitch][0]], y: firstPoint },
+        { x: data[data.length - 1][keyMap[keySwitch][0]], y: lastPoint },
+        keySwitch
       );
 
       if (newDirection !== direction) {
         setDirection(newDirection);
       }
-      const newLineData = data.map(point => ({
-        x: point.x,
-        y: lineOfBestFit ? lineOfBestFit(point.x) : null,
-      }));
+      const newLineData = data.map(point => (
+        keySwitch === 0
+          ? {
+            x: point.x,
+            y: lineOfBestFit ? lineOfBestFit(point.x) : null,
+          }
+          : {
+            w: point.w,
+            h: lineOfBestFit ? lineOfBestFit(point.w) : null,
+          }
+      ));
 
       setLineData(newLineData);
     }
+  }
+
+
+  useEffect(() => {
+    calculateLine();
   }, [data]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      calculateLine();
+    }, 1000);
+
+    // Cleanup function
+    return () => clearTimeout(timeoutId);
+  }, [keySwitch]);
+
 
 
   // let lineData = [];
@@ -167,16 +179,19 @@ export default function MyChart(props) {
       <div>
         <ComposedChart width={500} height={window.innerHeight * 0.3}>
           <CartesianGrid />
-          <XAxis dataKey="x" type="number" name='stature' domain={[0, 1]} />
-          <YAxis dataKey="y" type="number" name='weight' domain={[0, 1]} />
+          <XAxis dataKey={keyMap[keySwitch][0]} type="number" name='stature' domain={[0, 1]} />
+          <YAxis dataKey={keyMap[keySwitch][1]} type="number" name='weight' domain={[0, 1]} />
           <Tooltip cursor={{ strokeDasharray: '3 3' }} />
           <Scatter name='A school' data={data} fill='#8884d8' shape={renderCustomizedShape} />
-          <Line type="monotone" dataKey="y" data={lineData} stroke="#00C49F" index={1} dot={false} />
+          <Line type="monotone" dataKey={keyMap[keySwitch][1]} data={lineData} stroke="#00C49F" index={1} dot={false} />
         </ComposedChart>
       </div>
       <div className="buttonsContainer">
         <button onClick={clearChart}>
           Clear Chart
+        </button>
+        <button onClick={() => setKeySwitch(keySwitch === 0 ? 1 : 0)}>
+          Toggle Chart
         </button>
         {/* <button onClick={() => setThresholdValue(inputValue)}>
           Set Threshold
