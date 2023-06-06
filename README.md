@@ -19,7 +19,7 @@ with `webgl` backend.
 **Setup**
 
 ```bash
-git clone https://github.com/Hyuto/yolov5-tfjs.git
+git clone https://github.com/Nikkideez/DeepERV.git
 cd yolov5-tfjs
 yarn install #Install dependencies
 ```

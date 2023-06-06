@@ -31,13 +31,12 @@ function lastXPredsAreTheSame(data, x) {
 
 export default function MyChart(props) {
   const [data, setData] = useState([]);
-  // const [thresholdValue, setThresholdValue] = useState(1);
-  // const [inputValue, setInputValue] = useState();
-  const [selectedValue, setSelectedNumber] = useState(1);
   const [direction, setDirection] = useState("");
   const [lineData, setLineData] = useState([])
   const [keySwitch, setKeySwitch] = useState(1);
+  const [gradient, setGradient] = useState();
   const keyMap = [["x", "y"], ["w", "h"]];
+  const labelMap = [["centre (x)", "centre (y)"], ["width", "height"]];
 
   // Calculate director from gradient and last point
   const getDirection = (gradient, range, firstPoint, lastPoint, keySwitch) => {
@@ -78,7 +77,7 @@ export default function MyChart(props) {
     }
 
     // If there are multiple of the same guess, pin to map
-    if (data.length >= selectedValue && lastXPredsAreTheSame(data, selectedValue)) {
+    if (data.length >= props.threshold && lastXPredsAreTheSame(data, props.threshold)) {
       // console.log(data[data.length - 2].pred, " equals ", data[data.length - 1].pred)
       console.log(data[data.length - 1].pred)
       props.setPredData(data[data.length - 1].pred)
@@ -96,7 +95,8 @@ export default function MyChart(props) {
       // Calculate the line of best fit
       const { m, b } = linearRegression(dataPairs);
 
-      console.log("Gradient is: ", m);
+      // console.log("Gradient is: ", m);
+
 
       // Create a function for the line of best fit
       const lineOfBestFit = linearRegressionLine({ m, b });
@@ -114,6 +114,8 @@ export default function MyChart(props) {
       if (newDirection !== direction) {
         setDirection(newDirection);
       }
+      setGradient(m.toFixed(2));
+
       const newLineData = data.map(point => (
         keySwitch === 0
           ? {
@@ -138,7 +140,7 @@ export default function MyChart(props) {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       calculateLine();
-    }, 1000);
+    }, 550);
 
     // Cleanup function
     return () => clearTimeout(timeoutId);
@@ -162,54 +164,53 @@ export default function MyChart(props) {
   //   console.log(inputValue)
   // }
 
-  const handleSelect = (event) => {
-    setSelectedNumber(event.target.value);
-  }
+  // const handleSelect = (event) => {
+  //   setSelectedNumber(event.target.value);
+  // }
 
   return (
     <div className="chartContainer">
       <div className="textContainer">
         <p>
-          Direction is: <span className='directionText'>{direction}</span>
+          Gradient: <span style={{color: 'purple'}}>{gradient}</span>
         </p>
         <p>
-          Threshold Value: {selectedValue}
+          Direction: <span className='directionText'>{direction}</span>
         </p>
+        {/* <p>
+          Threshold Value: {props.threshold}
+        </p> */}
       </div>
       <div>
         <ComposedChart width={500} height={window.innerHeight * 0.3}>
           <CartesianGrid />
-          <XAxis dataKey={keyMap[keySwitch][0]} type="number" name='stature' domain={[0, 1]} />
-          <YAxis dataKey={keyMap[keySwitch][1]} type="number" name='weight' domain={[0, 1]} />
+          <XAxis dataKey={keyMap[keySwitch][0]} type="number" name='xaxis' domain={[0, 1]} 
+            label={{value: labelMap[keySwitch][0], dy: 12}}
+          />
+          <YAxis dataKey={keyMap[keySwitch][1]} type="number" name='yaxis' domain={[0, 1]}
+            label={{value: labelMap[keySwitch][1], angle: -90, dx: -12}}
+          />
           <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-          <Scatter name='A school' data={data} fill='#8884d8' shape={renderCustomizedShape} />
+          <Scatter name='Line of BF' data={data} fill='#8884d8' shape={renderCustomizedShape} />
           <Line type="monotone" dataKey={keyMap[keySwitch][1]} data={lineData} stroke="#00C49F" index={1} dot={false} />
         </ComposedChart>
       </div>
       <div className="buttonsContainer">
-        <button onClick={clearChart}>
+        <button onClick={clearChart} style={{marginLeft: 70}}>
           Clear Chart
         </button>
         <button onClick={() => setKeySwitch(keySwitch === 0 ? 1 : 0)}>
           Toggle Chart
         </button>
-        {/* <button onClick={() => setThresholdValue(inputValue)}>
-          Set Threshold
-          </button>
-        <input type="text" value={inputValue} onChange={handleInput} /> */}
-        <p className="thresholdP">
-          {"Set Threshold: "}
-        </p>
-        <select value={selectedValue} onChange={handleSelect}>
-          {/* <option value="">Select a number</option> */}
-          {[1, 2, 3, 4, 5].map((number) => (
-            <option key={number} value={number}>
-              {number}
-            </option>
-          ))}
-        </select>
       </div>
-      {/* } */}
     </div>
   );
 }
+        // <select value={selectedValue} onChange={handleSelect}>
+        //   {/* <option value="">Select a number</option> */}
+        //   {[1, 2, 3, 4, 5].map((number) => (
+        //     <option key={number} value={number}>
+        //       {number}
+        //     </option>
+        //   ))}
+        // </select>

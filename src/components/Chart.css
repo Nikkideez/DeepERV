@@ -18,9 +18,10 @@
 }
 
 .textContainer {
-    /* display: flex; */
-    width: 150px;
+    width: 130px;
+    margin-left: 40px;
 }
+
 
 .directionText {
     color: darkcyan;

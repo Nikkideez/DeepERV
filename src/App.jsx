@@ -12,21 +12,24 @@ const App = () => {
   const [loading, setLoading] = useState({ loading: true, progress: 0 }); // loading state
   const [data, setData] = useState(); // Holds detection data
   const [centre, setCentre] = useState(); // Holds data using centre points
+  const [isLocation, setIsLocation] = useState(false);
+  const [threshold, setThreshold] = useState(1);
+  const [classThreshold, setClassThreshold] = useState(0.75);
   const [model, setModel] = useState({
     net: null,
     inputShape: [1, 0, 0, 3],
   }); // init model & input shape
-  const [isLocation, setIsLocation] = useState(false);
 
   // references
   const imageRef = useRef(null);
   const cameraRef = useRef(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const inputRef = useRef();
 
   // model configs
   const modelName = "yolov5s";
-  const classThreshold = 0.75;
+  // const classThreshold = 0.75;
 
   useEffect(() => {
     tf.ready().then(async () => {
@@ -55,6 +58,10 @@ const App = () => {
 
   // console.log(centre)
 
+  const handleSelect = (event) => {
+    setThreshold(event.target.value);
+  }
+
   return (
     <div className="App">
 
@@ -65,15 +72,48 @@ const App = () => {
           YOLOv5 live ERV detection application on browser
         </p>
       </div>
+      <div style={{marginTop: 30}}>
+        <p className="thresholdP">
+          {"Set Threshold: "}
+        </p>
+        <select value={threshold} onChange={handleSelect}>
+          {/* <option value="">Select a number</option> */}
+          {[1, 2, 3, 4, 5].map((number) => (
+            <option key={number} value={number}>
+              {number}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <p className="thresholdP">
+          {"Set Conf: "}
+        </p>
+        <input
+          ref={inputRef}
+          placeholder={classThreshold}
+          style={{ width: 50 }}
+        />
+        <button className="button-inverted" onClick={() => setClassThreshold(inputRef.current.value)}>
+          Enter
+        </button>
+      </div>
       <div className="outputContainer">
-
         <Map data={data} setIsLocation={setIsLocation} />
-        <MyChart centre={centre} setPredData={setData} />
+        <MyChart centre={centre} setPredData={setData} threshold={threshold} />
         {/* <MyChart centre={centre} setPredData={setData} /> */}
       </div>
       <p>
         Serving : <code className="code">{modelName}</code>
       </p>
+      <div>
+        <p className="thresholdP" style={{marginLeft: 10, marginRight: 10}}>
+          Conf : <code style={{color: "red"}}>{classThreshold}</code>
+        </p>
+        <p className="thresholdP" style={{marginLeft: 10, marginRight: 10}}>
+          Threshold : <code style={{color: "red"}}>{threshold}</code>
+        </p>
+      </div>
 
       <div className="content">
         <img
@@ -97,11 +137,11 @@ const App = () => {
       </div>
 
       {!isLocation ?
-        <p style={{ color: 'red'}}>
+        <p style={{ color: 'red' }}>
           Set a location to enable inference buttons
         </p>
         :
-        <p style={{ color: 'magenta'}}>
+        <p style={{ color: 'magenta' }}>
           Select input source
         </p>
       }
