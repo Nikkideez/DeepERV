@@ -3,7 +3,7 @@ import { ComposedChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Scatter } fr
 import { linearRegression, linearRegressionLine } from 'simple-statistics';
 import "./Chart.css"
 
-const COLORS = ['#fc0b03', '#fc5203', '#f553ef', '#e2adf7', '#2043f5', '#20a7f5'];
+const COLORS = ['#fc0b03', '#fc7d3d', '#f553ef', '#e2adf7', '#2043f5', '#20a7f5'];
 
 const renderCustomizedShape = (props) => {
   // console.log(props)
@@ -79,9 +79,9 @@ export default function MyChart(props) {
     // If there are multiple of the same guess, pin to map
     if (data.length >= props.threshold && lastXPredsAreTheSame(data, props.threshold)) {
       // console.log(data[data.length - 2].pred, " equals ", data[data.length - 1].pred)
-      console.log(data[data.length - 1].pred)
+      // console.log(data[data.length - 1].pred)
       props.setPredData(data[data.length - 1].pred)
-      console.log("setPredData called!!!!")
+      // console.log("setPredData called!!!!")
     }
   }, [props.centre]);
 

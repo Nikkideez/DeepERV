@@ -51,14 +51,23 @@ export default function Map(props) {
 
 	const handleERVArray = (position, data) => {
 		console.log("handleERVArray called")
-		let min = -0.00025;
-		let max = -0.00010;
-		let random = Math.random() * (max - min) + min;
+		// let min = -0.00025;
+		// let max = -0.00010;
+		// let random = Math.random() * (max - min) + min;
+		
+		let offsetLat = -0.0001;
+		let offsetLng = 0;
 
-		console.log(random);
+		if(data === 0) {
+			offsetLng = -0.0001;
+		} else if (data === 2) {
+			offsetLng = 0.0001;
+		}
+
+		// console.log(random);
 
 		setERVS(prevERVS => [...prevERVS, {
-			location: { lat: position.lat + random, lng: position.lng + random },
+			location: { lat: position.lat + offsetLat, lng: position.lng + offsetLng },
 			data: data,
 			icon: classAttributes[data].icon
 		}]);
@@ -137,7 +146,7 @@ export default function Map(props) {
 					checkLocation = true;
 					break;
 				}
-				else if ((Math.abs(ervs[i].location.lat - location.lat) < 0.001) && !checklist[ervs[i].data]) {
+				else if ((Math.abs(ervs[i].location.lat - location.lat) < 0.001 && (Math.abs(ervs[i].location.lng - location.lng) < 0.001)) && !checklist[ervs[i].data]) {
 					if (ervs[i].data === props.data) {
 						// console.log("Already existing")
 						checkLocation = true;
@@ -224,7 +233,7 @@ export default function Map(props) {
 							{(clusterer) =>
 								ervs.map((erv) => (
 									<Marker
-										key={erv.location.lat}
+										key={erv.location.lng}
 										position={erv.location}
 										clusterer={clusterer}
 										icon={erv.icon}
