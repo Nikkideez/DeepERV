@@ -214,7 +214,7 @@ export default function Map(props) {
 							// 	url: "https://cdn-icons-png.flaticon.com/512/3487/3487352.png",
 							// 	scaledSize: new window.google.maps.Size(60, 60)
 							// }}
-							icon="../../yolov5-tfjs/icons8-location-32.png"
+							icon="../../icons8-location-32.png"
 						/>
 						{/* <Circle 
 							center={location}

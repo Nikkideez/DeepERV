@@ -26,14 +26,20 @@
   },
   "homepage": "https://github.com/Hyuto/yolov5-tfjs#readme",
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.13.4",
     "@reach/combobox": "^0.18.0",
     "@react-google-maps/api": "^2.18.1",
     "@tensorflow/tfjs": "^4.1.0",
     "normalize.css": "^8.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.12.0",
     "recharts": "^2.6.2",
     "simple-statistics": "^7.8.3",
+    "typewriter-effect": "^2.20.1",
     "use-places-autocomplete": "^4.0.0"
   },
   "devDependencies": {

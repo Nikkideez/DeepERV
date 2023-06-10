@@ -46,12 +46,14 @@ export const renderBoxes = (
       const score = (scores_data[i] * 100).toFixed(1);
       
       let [x1, y1, x2, y2] = boxes_data.slice(i * 4, (i + 1) * 4);
+
+      // Raw values to be used for chart
       const w = x2 - x1;
       const h = y2 - y1;
       const xc = (x2 + x1)/2;
       const yc = (y2 + y1)/2;
-      setCentre({x: xc, y: yc, w: w, h: h, pred: classes_data[i]});
-      // console.log(boxes_data.slice(i * 4, (i + 1) * 4))
+      
+      // Values to draw bounding box on canvas
       x1 *= canvasRef.width * ratios[0];
       x2 *= canvasRef.width * ratios[0];
       y1 *= canvasRef.height * ratios[1];
@@ -82,6 +84,9 @@ export const renderBoxes = (
       // Draw labels
       ctx.fillStyle = "#ffffff";
       ctx.fillText(klass + " - " + score + "%", x1 - 1, yText < 0 ? 0 : yText);
+        
+      // Bad naming, setting centre, height, width and class
+      setCentre({x: xc, y: yc, w: w, h: h, pred: classes_data[i]});
     }
   }
 };

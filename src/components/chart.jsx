@@ -5,13 +5,9 @@ import "./Chart.css"
 
 const COLORS = ['#fc0b03', '#fc7d3d', '#f553ef', '#e2adf7', '#2043f5', '#20a7f5'];
 
-const renderCustomizedShape = (props) => {
-  // console.log(props)
-  const { cx, cy } = props;
-  const index = props.payload.pred;
-  // console.log(cx, cy, index)
-  return <circle cx={cx} cy={cy} r={5} fill={COLORS[index % COLORS.length]} />;
-}
+
+
+
 
 function lastXPredsAreTheSame(data, x) {
   if (!Array.isArray(data) || data.length < x) {
@@ -35,8 +31,13 @@ export default function MyChart(props) {
   const [lineData, setLineData] = useState([])
   const [keySwitch, setKeySwitch] = useState(1);
   const [gradient, setGradient] = useState();
+  // mix and max x values for arrow head
+  const [minIndex, setMinIndex] = useState(0);
+  const [maxIndex, setMaxIndex] = useState(0);
+  // Maps to help switch keys and labels
   const keyMap = [["x", "y"], ["w", "h"]];
   const labelMap = [["centre (x)", "centre (y)"], ["width", "height"]];
+
 
   // Calculate director from gradient and last point
   const getDirection = (gradient, range, firstPoint, lastPoint, keySwitch) => {
@@ -57,7 +58,7 @@ export default function MyChart(props) {
         return "right"
     } else {
       if (!keySwitch && firstPoint.y > lastPoint.y)
-        return "down" 
+        return "down"
       else if (!keySwitch)
         return "up"
       else if (keySwitch && firstPoint.y > lastPoint.y)
@@ -105,7 +106,7 @@ export default function MyChart(props) {
       const lastPoint = lineOfBestFit(data[data.length - 1][keyMap[keySwitch][0]])
 
       // Set direction of ERV
-      const newDirection = getDirection(m, 0.1,
+      const newDirection = getDirection(m, 0.27,
         { x: data[0][keyMap[keySwitch][0]], y: firstPoint },
         { x: data[data.length - 1][keyMap[keySwitch][0]], y: lastPoint },
         keySwitch
@@ -127,6 +128,19 @@ export default function MyChart(props) {
             h: lineOfBestFit ? lineOfBestFit(point.w) : null,
           }
       ));
+      console.log(newLineData)
+      console.log(newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]])
+      console.log()
+
+      // Check if there is a new min or new max for x
+      if (newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]] < newLineData[minIndex][keyMap[keySwitch][0]]) {
+        console.log("Min: ", newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]], newLineData[minIndex][keyMap[keySwitch][0]]);
+        setMinIndex(newLineData.length - 1)
+      }
+      else if (newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]] > newLineData[maxIndex][keyMap[keySwitch][0]]) {
+        console.log("Max: ", newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]], newLineData[maxIndex][keyMap[keySwitch][0]]);
+        setMaxIndex(newLineData.length - 1)
+      }
 
       setLineData(newLineData);
     }
@@ -154,6 +168,8 @@ export default function MyChart(props) {
     console.log("clearChart called!!!!")
     setData([]);
     setLineData([]);
+    setMaxIndex(0);
+    setMinIndex(0);
     props.setPredData(undefined)
 
   }
@@ -168,11 +184,108 @@ export default function MyChart(props) {
   //   setSelectedNumber(event.target.value);
   // }
 
+  // Returns min or max index
+  const getMinMaxDirection = (direction) => {
+    if (direction === "right" || direction === "down")
+      return maxIndex
+    else
+      return minIndex
+  }
+
+  // Custom triangle marker that rotates based on gradient
+  const CustomTriangle = (props) => {
+
+    if (!gradient || lineData.length === 0)
+      return <polygon />
+
+    const { cx, cy } = props;
+    // // Fetching the last two points of the line
+    // const pointA = lineData[lineData.length - 1];
+    // const pointB = lineData[0];
+
+    // console.log(pointA, pointB)
+
+    // // Calculating the angle (in degrees) using the inverse tangent (atan2)
+    // let angle = Math.atan2(pointB[keyMap[keySwitch][1]] - pointA[keyMap[keySwitch][1]], pointB[keyMap[keySwitch][0]] - pointA[keyMap[keySwitch][0]]) * 180 / Math.PI;
+    // if (pointB[keyMap[keySwitch][0]] < pointA[keyMap[keySwitch][0]]) {
+    //   angle += 180;
+    // }
+
+    let angle;
+    if (direction === "up")
+      angle = 0;
+    else if (direction === "right")
+      angle = 90;
+    else if (direction === "down")
+      angle = 180;
+    else
+      angle = 270;
+
+    const rotateTransform = `rotate(${angle}, ${cx}, ${cy})`;
+    // console.log(gradient)
+    // points = cx ? `${cx},${cy - 6} ${cx - 6},${cy + 6} ${cx + 6},${cy + 6}` : null, null, null, null
+    return (
+      cx ?
+        <polygon
+          points={`${cx},${cy - 6} ${cx - 6},${cy + 6} ${cx + 6},${cy + 6}`}
+          transform={rotateTransform}
+          fill="#00C49F" />
+        :
+        <polygon />
+    );
+  }
+
+  const renderCustomizedShape = (props) => {
+    // console.log(props)
+    const { cx, cy, key } = props;
+    const index = props.payload.pred;
+    const size = 5;  // You can adjust the size of the 'X'
+    let last = `symbol-${lineData.length - 1}`
+    // console.log(lineData)
+    // console.log(keyMap[keySwitch])
+    if (lineData.length > 2 && key === "symbol-0") {
+      return (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={5}
+          fill={"white"}
+          stroke={COLORS[index % COLORS.length]}
+          strokeWidth={2} // You can adjust this value to change the border thickness
+        />
+      );
+    } else if (lineData.length > 2 && key === `symbol-${lineData.length - 1}`) {
+      return (
+        <g>
+          <line 
+            x1={cx - size} 
+            y1={cy - size} 
+            x2={cx + size} 
+            y2={cy + size} 
+            stroke={COLORS[index % COLORS.length]} 
+            strokeWidth={2} 
+          />
+          <line 
+            x1={cx - size} 
+            y1={cy + size} 
+            x2={cx + size} 
+            y2={cy - size} 
+            stroke={COLORS[index % COLORS.length]} 
+            strokeWidth={2} 
+          />
+        </g>
+      );
+    }
+
+    // console.log(cx, cy, index)
+    return <circle cx={cx} cy={cy} r={5} fill={COLORS[index % COLORS.length]} />;
+  }
+
   return (
     <div className="chartContainer">
       <div className="textContainer">
         <p>
-          Gradient: <span style={{color: 'purple'}}>{gradient}</span>
+          Gradient: <span style={{ color: 'purple' }}>{gradient}</span>
         </p>
         <p>
           Direction: <span className='directionText'>{direction}</span>
@@ -184,19 +297,20 @@ export default function MyChart(props) {
       <div>
         <ComposedChart width={500} height={window.innerHeight * 0.3}>
           <CartesianGrid />
-          <XAxis dataKey={keyMap[keySwitch][0]} type="number" name='xaxis' domain={[0, 1]} 
-            label={{value: labelMap[keySwitch][0], dy: 12}}
+          <XAxis dataKey={keyMap[keySwitch][0]} type="number" name='xaxis' domain={[0, 1]}
+            label={{ value: labelMap[keySwitch][0], dy: 12 }}
           />
           <YAxis dataKey={keyMap[keySwitch][1]} type="number" name='yaxis' domain={[0, 1]}
-            label={{value: labelMap[keySwitch][1], angle: -90, dx: -12}}
+            label={{ value: labelMap[keySwitch][1], angle: -90, dx: -12 }}
           />
           <Tooltip cursor={{ strokeDasharray: '3 3' }} />
           <Scatter name='Line of BF' data={data} fill='#8884d8' shape={renderCustomizedShape} />
           <Line type="monotone" dataKey={keyMap[keySwitch][1]} data={lineData} stroke="#00C49F" index={1} dot={false} />
+          <Scatter name='Line arrow' data={[lineData[getMinMaxDirection(direction)]]} fill='#00C49F' shape={CustomTriangle} />
         </ComposedChart>
       </div>
       <div className="buttonsContainer">
-        <button onClick={clearChart} style={{marginLeft: 70}}>
+        <button onClick={clearChart} style={{ marginLeft: 70 }}>
           Clear Chart
         </button>
         <button onClick={() => setKeySwitch(keySwitch === 0 ? 1 : 0)}>
