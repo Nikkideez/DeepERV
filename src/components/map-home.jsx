@@ -1,6 +1,7 @@
-import { GoogleMap, useLoadScript } from "@react-google-maps/api";
+import { useLoadScript } from "@react-google-maps/api";
 import Map from "./map";
 import "./Map.css";
+
 
 const libraries = ["places"]
 export default function Home(props){
@@ -15,7 +16,11 @@ export default function Home(props){
 
     return (
         <div>
-            <Map data={props.data} setIsLocation={props.setIsLocation}/>
+            <Map 
+                data={props.data} 
+                setIsLocation={props.setIsLocation} 
+                setNotificationObj={props.setNotificationObj}
+            />
         </div>
     )
 

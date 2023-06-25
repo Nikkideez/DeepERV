@@ -7,6 +7,7 @@ import { detectImage, detectVideo } from "../utils/detect";
 import "../style/App.css";
 import Map from "../components/map-home";
 import MyChart from '../components/chart';
+import Notifications from "../components/Notifications";
 
 const MainApp = () => {
   const [loading, setLoading] = useState({ loading: true, progress: 0 }); // loading state
@@ -15,6 +16,7 @@ const MainApp = () => {
   const [isLocation, setIsLocation] = useState(false);
   const [threshold, setThreshold] = useState(1);
   const [classThreshold, setClassThreshold] = useState(0.75);
+  const [notificationObj, setNotificationObj] = useState();
   const [model, setModel] = useState({
     net: null,
     inputShape: [1, 0, 0, 3],
@@ -61,7 +63,7 @@ const MainApp = () => {
   const handleSelect = (event) => {
     setThreshold(event.target.value);
   }
-
+  
   return (
     <div className="App">
 
@@ -99,7 +101,8 @@ const MainApp = () => {
         </button>
       </div>
       <div className="outputContainer">
-        <Map data={data} setIsLocation={setIsLocation} />
+        <Notifications notificationObj={notificationObj}/>
+        <Map data={data} setIsLocation={setIsLocation} setNotificationObj={setNotificationObj}/>
         <MyChart centre={centre} setPredData={setData} threshold={threshold} />
         {/* <MyChart centre={centre} setPredData={setData} /> */}
       </div>

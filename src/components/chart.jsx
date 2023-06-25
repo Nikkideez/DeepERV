@@ -128,9 +128,8 @@ export default function MyChart(props) {
             h: lineOfBestFit ? lineOfBestFit(point.w) : null,
           }
       ));
-      console.log(newLineData)
-      console.log(newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]])
-      console.log()
+      // console.log(newLineData)
+      // console.log(newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]])
 
       // Check if there is a new min or new max for x
       if (newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]] < newLineData[minIndex][keyMap[keySwitch][0]]) {
