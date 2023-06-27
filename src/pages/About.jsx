@@ -9,16 +9,9 @@ const About = () => {
                     About DeepERV
                 </Typography>
             </Box>
-                {/* <Typewriter
-                    onInit={(typewriter) => {
-                        typewriter.typeString('An application to detect Active Emergency Response vehicles and pin them to the map. Click on the App button on the top right to begin.')
-
-                            .stop()
-                            .pauseFor(2500)
-                            .start();
-                    }}
-                    options={{ pauseFor: 4000 }}
-                /> */}
+            <div style={{display: 'flex', justifyContent: 'center'}}>
+                <img src='https://cdn.i-scmp.com/sites/default/files/styles/1280x720/public/d8/images/2018/11/07/pepe_0.jpg?itok=qRtlgdIa' />
+            </div>
         </div>
     )
 }

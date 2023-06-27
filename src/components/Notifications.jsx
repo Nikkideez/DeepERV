@@ -66,6 +66,8 @@ const colors = { Info: "#1e88e5", Warning: "#ffb300", Emergency: "#e53935" }
 const labelKey = {0: "Firetruck", 2: "Ambulance", 4: "Police"}
 
 const generateMessage = (type, label) => {
+	if(type === "Detect")
+		return `${label} detected!`
 	if(type === "Info")
 		return `${label} on this road.`
 	if(type === "Warning")
@@ -100,6 +102,7 @@ export default function Notifications(props) {
 
 	useEffect(() => {
 		if (props.notificationObj) {
+			console.log("Notif array: ", notificationArr)
 			setNotificationArr((prev) => [
 				{
 					type: props.notificationObj.type,
@@ -115,9 +118,9 @@ export default function Notifications(props) {
 
 
 	return (
-		<div style={{ marginRight: 20, marginTop: 50, width: 400 }}>
+		<div style={{ marginRight: 25, marginTop: 55, marginLeft: 40, width: 400 }}>
 			{/* {addFruitButton} */}
-			<h3 style={{ marginBottom: 15}}>
+			<h3 style={{ marginBottom: 25}}>
 				Notifications
 			</h3>
 			{notificationArr.length >= 1 ?

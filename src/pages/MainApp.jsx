@@ -13,6 +13,8 @@ const MainApp = () => {
   const [loading, setLoading] = useState({ loading: true, progress: 0 }); // loading state
   const [data, setData] = useState(); // Holds detection data
   const [centre, setCentre] = useState(); // Holds data using centre points
+  const [newDirection, setNewDirection] = useState(); // Holds direction
+  const [updateEffect, setUpdateEffect] = useState(true); // Basically to force an update
   const [isLocation, setIsLocation] = useState(false);
   const [threshold, setThreshold] = useState(1);
   const [classThreshold, setClassThreshold] = useState(0.75);
@@ -102,8 +104,8 @@ const MainApp = () => {
       </div>
       <div className="outputContainer">
         <Notifications notificationObj={notificationObj}/>
-        <Map data={data} setIsLocation={setIsLocation} setNotificationObj={setNotificationObj}/>
-        <MyChart centre={centre} setPredData={setData} threshold={threshold} />
+        <Map data={data} setIsLocation={setIsLocation} setNotificationObj={setNotificationObj} newDirection={newDirection} updateEffect={updateEffect}/>
+        <MyChart centre={centre} setPredData={setData} threshold={threshold} setNewDirection={setNewDirection} setUpdateEffect={setUpdateEffect}/>
         {/* <MyChart centre={centre} setPredData={setData} /> */}
       </div>
       <p>

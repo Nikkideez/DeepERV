@@ -20,6 +20,8 @@ export default function Home(props){
                 data={props.data} 
                 setIsLocation={props.setIsLocation} 
                 setNotificationObj={props.setNotificationObj}
+                newDirection={props.newDirection}
+                updateEffect={props.updateEffect}
             />
         </div>
     )

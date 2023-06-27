@@ -40,7 +40,7 @@ export default function MyChart(props) {
 
 
   // Calculate director from gradient and last point
-  const getDirection = (gradient, range, firstPoint, lastPoint, keySwitch) => {
+  const getDirection = (gradient, range, firstPoint, lastPoint, centrePoint, keySwitch) => {
     if (!gradient)
       return "??"
 
@@ -52,7 +52,7 @@ export default function MyChart(props) {
 
     // if(firstPoint.x > lastPoint.x)
     if (check) {
-      if (firstPoint.x > lastPoint.x)
+      if (centrePoint.x1 > centrePoint.x2)
         return "left"
       else
         return "right"
@@ -106,9 +106,10 @@ export default function MyChart(props) {
       const lastPoint = lineOfBestFit(data[data.length - 1][keyMap[keySwitch][0]])
 
       // Set direction of ERV
-      const newDirection = getDirection(m, 0.27,
-        { x: data[0][keyMap[keySwitch][0]], y: firstPoint },
-        { x: data[data.length - 1][keyMap[keySwitch][0]], y: lastPoint },
+      const newDirection = getDirection(m, 0.4,
+        { x: data[0]["w"], y: firstPoint },
+        { x: data[data.length - 1]["h"], y: lastPoint },
+        { x1: data[0]["x"], x2: data[data.length - 1]["x"] },
         keySwitch
       );
 
@@ -133,11 +134,11 @@ export default function MyChart(props) {
 
       // Check if there is a new min or new max for x
       if (newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]] < newLineData[minIndex][keyMap[keySwitch][0]]) {
-        console.log("Min: ", newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]], newLineData[minIndex][keyMap[keySwitch][0]]);
+        // console.log("Min: ", newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]], newLineData[minIndex][keyMap[keySwitch][0]]);
         setMinIndex(newLineData.length - 1)
       }
       else if (newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]] > newLineData[maxIndex][keyMap[keySwitch][0]]) {
-        console.log("Max: ", newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]], newLineData[maxIndex][keyMap[keySwitch][0]]);
+        // console.log("Max: ", newLineData[[newLineData.length - 1]][keyMap[keySwitch][0]], newLineData[maxIndex][keyMap[keySwitch][0]]);
         setMaxIndex(newLineData.length - 1)
       }
 
@@ -256,21 +257,21 @@ export default function MyChart(props) {
     } else if (lineData.length > 2 && key === `symbol-${lineData.length - 1}`) {
       return (
         <g>
-          <line 
-            x1={cx - size} 
-            y1={cy - size} 
-            x2={cx + size} 
-            y2={cy + size} 
-            stroke={COLORS[index % COLORS.length]} 
-            strokeWidth={2} 
+          <line
+            x1={cx - size}
+            y1={cy - size}
+            x2={cx + size}
+            y2={cy + size}
+            stroke={COLORS[index % COLORS.length]}
+            strokeWidth={2}
           />
-          <line 
-            x1={cx - size} 
-            y1={cy + size} 
-            x2={cx + size} 
-            y2={cy - size} 
-            stroke={COLORS[index % COLORS.length]} 
-            strokeWidth={2} 
+          <line
+            x1={cx - size}
+            y1={cy + size}
+            x2={cx + size}
+            y2={cy - size}
+            stroke={COLORS[index % COLORS.length]}
+            strokeWidth={2}
           />
         </g>
       );
@@ -279,6 +280,23 @@ export default function MyChart(props) {
     // console.log(cx, cy, index)
     return <circle cx={cx} cy={cy} r={5} fill={COLORS[index % COLORS.length]} />;
   }
+
+  // Update direction only when vid is done
+  useEffect(() => {
+    // Create a timer that will update delayedState after 2 seconds
+    const timer = setTimeout(() => {
+      console.log("timeout dawg")
+      props.setNewDirection(direction)
+      props.setUpdateEffect(prev => !prev)
+    }, 3000);  // 2000ms = 2 seconds
+
+    // Specify how to clean up after this effect
+    return function cleanup() {
+      // If state changes before the 2 seconds are up, clear the timer
+      clearTimeout(timer);
+    };
+  }, [direction]);  // Only re-run the effect if state changes
+
 
   return (
     <div className="chartContainer">

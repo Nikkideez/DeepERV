@@ -13,13 +13,15 @@ import "./Map.css";
 // 	"police_active",
 // 	"police_inactive"
 // ]
+// Colors for each class
+const COLORS = ['#fc7d3d', '#fc0b03', '#f553ef', '#e2adf7', '#2043f5', '#20a7f5'];
 
 // Calculates a point x meters in a direction based on bearing
 // This is used to draw the polyline that shows the facing direction
 function calculateNewPosition(lat, lng, bearing, distance) {
 	const R = 6371; // Radius of the Earth in kilometers
 	const d = distance / 1000; // Convert distance to kilometers
-	const brng = toRad(bearing); // Convert bearing to radians
+	const brng = toRad(bearing.toString()); // Convert bearing to radians
 
 	const lat1 = toRad(lat);
 	const lon1 = toRad(lng);
@@ -105,23 +107,33 @@ const handleERVArray = (position, data, bearing, classAttributes, streetName) =>
 	// let max = -0.00010;
 	// let random = Math.random() * (max - min) + min;
 
-	let offsetLat = -0.00005;
-	let offsetLng = 0;
+	// let offsetLat = -0.00005;
+	// let offsetLng = 0;
 
+	// if (data === 0) {
+	// 	offsetLng = -0.00005;
+	// } else if (data === 2) {
+	// 	offsetLng = 0.00005;
+	// }
+	let offset;
 	if (data === 0) {
-		offsetLng = -0.00005;
+		offset = calculateNewPosition(position.lat, position.lng, bearing, 10);
 	} else if (data === 2) {
-		offsetLng = 0.00005;
+		offset = calculateNewPosition(position.lat, position.lng, bearing, 15);
+	} else {
+		offset = calculateNewPosition(position.lat, position.lng, bearing, 20);
 	}
+
 
 	// console.log(random);
 
 	return {
-		location: { lat: position.lat + offsetLat, lng: position.lng + offsetLng },
+		location: { lat: offset.lat, lng: offset.lng },
 		data: data,
 		icon: classAttributes[data].icon,
 		bearing: bearing,
-		streetName: streetName
+		streetName: streetName,
+		directionPos: calculateNewPosition(offset.lat, offset.lng, bearing, 10)
 	};
 };
 
@@ -140,7 +152,14 @@ const isPositionBehind = (latCurrent, lngCurrent, latERV, lngERV, currentBearing
 }
 
 
-
+const adjustBearing = (newDirection, currentBearing) => {
+	if (newDirection === "left")
+		return currentBearing - 90
+	if (newDirection === "right")
+		return currentBearing + 90
+	if (newDirection === "down")
+		return currentBearing + 180
+}
 
 
 export default function Map(props) {
@@ -150,7 +169,9 @@ export default function Map(props) {
 	const [ervs, setERVS] = useState([])
 	const [facingDirection, setFacingDirection] = useState([]);
 	const [currentStreet, setCurrentStreet] = useState();
-	// const [bearing, setBearing] = useState();
+	const [visible, setVisible] = useState(true);
+	const [arrCount, setArrCount] = useState(0)
+	const [currentBearing, setCurrentBearing] = useState(90);
 	const mapRef = useRef();
 	const inputRef = useRef();
 
@@ -251,15 +272,20 @@ export default function Map(props) {
 			// console.log("props.data: ", props.data);
 			// console.log("modulo: ", props.data % 2);
 			// console.log("check: ", !check)
-			console.log("checkLocation: ", checkLocation)
-			console.log(props.data)
+			// console.log("checkLocation: ", checkLocation)
+			// console.log(props.data)
 
 			if (!checkLocation && props.data !== undefined && (props.data % 2) === 0) {
 				// console.log("check 2 ", check);
 				// setCount(count + 1);
 				// handleERVArray(location, props.data, facingDirection)
-				console.log(currentStreet)
-				setERVS(prevERVS => [...prevERVS, handleERVArray(location, props.data, inputRef.current.value, classAttributes, currentStreet)]);
+				// console.log(currentStreet)
+				// const bearing = adjustBearing(input.current.value, )
+				setERVS(prevERVS => [...prevERVS, handleERVArray(location, props.data, currentBearing, classAttributes, currentStreet)]);
+				props.setNotificationObj({
+					type: "Detect",
+					data: props.data
+				})
 			}
 		}
 	}, [props.data])
@@ -268,13 +294,14 @@ export default function Map(props) {
 	useEffect(() => {
 		if (location) {
 			props.setIsLocation(true);
-			handleFacingDirection(location, inputRef.current.value, 100)
+			handleFacingDirection(location, currentBearing, 100)
 
 			// getDistance(ervs[0], location)
 			// create a new function to handle the async request
 			const fetchStreetName = async () => {
 				const street = await getStreetName(location.lat, location.lng);
-				setCurrentStreet(street);
+				if (street)
+					setCurrentStreet(street);
 			}
 
 			// call the function
@@ -285,16 +312,22 @@ export default function Map(props) {
 	// If location of ervs array changes, handle notifications, if any
 	useEffect(() => {
 		if (location && ervs.length >= 1) {
-			const notificationTrigger = async () => {
-				const streetCheck = await isSameStreet(location.lat, location.lng, ervs[ervs.length-1].location.lat, ervs[ervs.length-1].location.lng);
-				const directionCheck = isDirectionSame(inputRef.current.value, ervs[ervs.length-1].bearing)
-				const positionCheck = isPositionBehind(location.lat, location.lng, ervs[ervs.length-1].location.lat, ervs[ervs.length-1].location.lng, inputRef.current.value)
+			// const streetCheck = await isSameStreet(location.lat, location.lng, ervs[ervs.length-1].location.lat, ervs[ervs.length-1].location.lng);
+			let bestNotif;
+			let maxD = 1500;
+			ervs.forEach(element => {
+				console.log(element)
+				const streetCheck = currentStreet === element.streetName
+				const directionCheck = isDirectionSame(currentBearing, element.bearing)
+				const positionCheck = isPositionBehind(location.lat, location.lng, element.location.lat, element.location.lng, currentBearing)
+				console.log(currentStreet)
+				console.log(element.streetName)
 				console.log(streetCheck)
 				console.log(directionCheck)
 				console.log(positionCheck)
 				if (streetCheck && directionCheck && positionCheck) {
-					console.log("Zammmmmmmmmmmmmmmmmmmmmmmmm")
-					const distance = calculateDistance(location.lat, location.lng, ervs[ervs.length-1].location.lat, ervs[ervs.length-1].location.lng)
+					// console.log("Zammmmmmmmmmmmmmmmmmmmmmmmm")
+					const distance = calculateDistance(location.lat, location.lng, element.location.lat, element.location.lng)
 					console.log(distance)
 					let type;
 					if (distance < 150)
@@ -303,23 +336,36 @@ export default function Map(props) {
 						type = "Warning"
 					else if (distance < 2000)
 						type = "Info"
-					props.setNotificationObj({
-						type: type,
-						data: ervs[ervs.length-1].data
-					})
 
+					if (distance < maxD) {
+						maxD = distance;
+						bestNotif = {
+							type: type,
+							data: element.data
+						}
+					}
 				}
-			}
+			});
 
-			notificationTrigger();
+			// set the state only once after the iteration
+			// Notify for closest vehicle
+			if (bestNotif)
+				props.setNotificationObj(bestNotif);
 		}
+
 	}, [location, ervs])
 
-	const handleClearMarker = () => setERVS([]);
+	const handleClearMarker = () => {
+		setArrCount(0)
+		setERVS([])
+	};
 
-	const handleFacingDirection = (location, newBearing, distance) => {
+	const handleFacingDirection = (location, newBearing) => {
+		console.log(newBearing)
+		if (!newBearing)
+			newBearing = currentBearing
 		let newPos = calculateNewPosition(location.lat, location.lng, newBearing, 10);
-		// setBearing(newBearing);
+		setCurrentBearing(newBearing);
 		setFacingDirection([
 			{ lat: location.lat, lng: location.lng },
 			{ lat: newPos.lat, lng: newPos.lng }
@@ -340,6 +386,51 @@ export default function Map(props) {
 
 	// }
 
+	const handleZoomChanged = () => {
+		// console.log(mapRef)
+		const zoomLevel = 17.5
+		if (mapRef.current && visible && mapRef.current.zoom < zoomLevel) {
+			setVisible(false)
+		}
+		else if (mapRef.current && !visible && mapRef.current.zoom > zoomLevel) {
+			setVisible(true)
+		}
+		// console.log(visible)
+	}
+
+	useEffect(() => {
+		console.log("updateEffect changed!!")
+		console.log(props.updateEffect)
+		if (props.newDirection && props.newDirection !== "up" && ervs.length > 0) {
+			setERVS(prev =>
+				prev.map((item, i) => {
+					console.log("index: ", i)
+					console.log("arrCount: ", arrCount)
+					console.log("ervs array: ", ervs)
+					if (i < arrCount) {
+						return item
+					} else {
+						console.log("Updating bearing direction")
+						return {
+							...item,
+							bearing: adjustBearing(props.newDirection, parseInt(item.bearing)),
+							directionPos: calculateNewPosition(item.location.lat, item.location.lng, adjustBearing(props.newDirection, parseInt(item.bearing)), 10)
+						}
+					}
+				}))
+			// i < (arrCount-1)
+			// 	? item
+			// 	: {
+			// 		...item,
+			// 		bearing: adjustBearing(props.newDirection, parseInt(item.bearing)),
+			// 		directionPos: calculateNewPosition(item.location.lat, item.location.lng, adjustBearing(props.newDirection, parseInt(item.bearing)), 10)
+			// 	}
+		}
+		setArrCount(ervs.length)
+	}, [props.updateEffect])
+
+
+
 	return (
 		<div className="map-div">
 			<div>
@@ -358,8 +449,10 @@ export default function Map(props) {
 			</div>
 			<GoogleMap
 				zoom={10}
+				ref={mapRef}
 				center={center}
 				mapContainerClassName="map-container"
+				onZoomChanged={handleZoomChanged}
 				options={options}
 				onLoad={onLoad}
 			>
@@ -397,6 +490,7 @@ export default function Map(props) {
 										position={erv.location}
 										clusterer={clusterer}
 										icon={erv.icon}
+										rotation={erv.bearing}
 									/>
 								))
 							}
@@ -409,6 +503,7 @@ export default function Map(props) {
 									key={facingDirection[1].lat + facingDirection[1].lng} // Add unique key prop
 									path={facingDirection}
 									onLoad={onPolyLoad}
+									visible={visible}
 									options={{
 										strokeColor: '#FF0000',
 										strokeOpacity: 0.8,
@@ -420,9 +515,52 @@ export default function Map(props) {
 										editable: false,
 										visible: true,
 										radius: 30000,
-										zIndex: 1
+										zIndex: 1,
+										icons: [
+											{
+												icon: {
+													path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+													scale: 2,
+
+												},
+												offset: '100%',
+											},
+										],
 									}}
 								/>
+								{ervs.map((erv) => (
+									<PolylineF
+										key={erv.location.lng} // Add unique key prop
+										path={[erv.location, erv.directionPos]}
+										onLoad={onPolyLoad}
+										visible={visible}
+										options={{
+											strokeColor: COLORS[erv.data],
+											strokeOpacity: 0.8,
+											strokeWeight: 2,
+											fillColor: COLORS[erv.data],
+											fillOpacity: 0.35,
+											clickable: false,
+											draggable: true,
+											editable: false,
+											visible: true,
+											radius: 30000,
+											zIndex: 1,
+											icons: [
+												{
+													icon: {
+														path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+														scale: 2,
+
+													},
+													offset: '100%',
+												},
+											],
+										}}
+									/>
+								))
+								}
+
 							</>
 						}
 					</>
@@ -458,10 +596,10 @@ export default function Map(props) {
 					</p>
 					<input
 						ref={inputRef}
-						placeholder={facingDirection}
+						placeholder={currentBearing}
 						style={{ width: 50 }}
 					/>
-					<button className="button-inverted" onClick={() => handleFacingDirection(location, inputRef.current.value, 100)}>
+					<button className="button-inverted" onClick={() => handleFacingDirection(location, parseInt(inputRef.current.value))}>
 						Enter
 					</button>
 				</div>
