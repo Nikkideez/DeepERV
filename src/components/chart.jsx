@@ -327,11 +327,11 @@ export default function MyChart(props) {
         </ComposedChart>
       </div>
       <div className="buttonsContainer">
-        <button onClick={clearChart} style={{ marginLeft: 70 }}>
-          Clear Chart
-        </button>
-        <button onClick={() => setKeySwitch(keySwitch === 0 ? 1 : 0)}>
+        <button onClick={() => setKeySwitch(keySwitch === 0 ? 1 : 0)} style={{ marginLeft: 70 }}>
           Toggle Chart
+        </button>
+        <button onClick={clearChart}>
+          Clear Chart
         </button>
       </div>
     </div>
